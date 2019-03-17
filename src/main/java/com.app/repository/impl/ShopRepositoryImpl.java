@@ -41,5 +41,33 @@ public class ShopRepositoryImpl extends AbstractGenericRepository<Shop> implemen
         }
         return op;
     }
+
+    @Override
+    public List<Shop> findAllByName(String shopName) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction tx = null;
+        List<Shop> elements;
+        try {
+            tx = entityManager.getTransaction();
+            tx.begin();
+            elements = entityManager
+                    .createQuery("select s from Shop s where s.name = :name", Shop.class)
+                    .setParameter("name", shopName)
+                    .getResultList();
+            tx.commit();
+        } catch (Exception e) {
+
+            if (tx != null) {
+                tx.rollback();
+            }
+            e.printStackTrace();
+            throw new MyException("SHOP FIND BY NAME EXCEPTION");
+        } finally {
+            if (entityManager != null) {
+                entityManager.close();
+            }
+        }
+        return elements;
+    }
 }
 
